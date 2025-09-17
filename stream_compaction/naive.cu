@@ -18,6 +18,8 @@ namespace StreamCompaction {
         int* obuffer;
         int* ibuffer;
 
+
+        //Shift right for exclusive scan
         __global__ void shiftRight(int n, int* odata, const int* idata) {
             int index = threadIdx.x + (blockIdx.x * blockDim.x);
             if (index >= n) {
@@ -59,8 +61,7 @@ namespace StreamCompaction {
          */
         void scan(int n, int *odata, const int *idata) {
             timer().startGpuTimer();
-            // TODO
-          
+        
             cudaMalloc((void**)&obuffer, n * sizeof(int));
             cudaMalloc((void**)&ibuffer, n * sizeof(int));
             cudaMemcpy(obuffer, odata, n * sizeof(int), cudaMemcpyHostToDevice);

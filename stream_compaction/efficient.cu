@@ -35,6 +35,7 @@ namespace StreamCompaction {
         
         }
 
+
         __global__ void downSweep(int n, int* idata, int layer) {
             int index = threadIdx.x + (blockIdx.x * blockDim.x);
           
@@ -59,45 +60,28 @@ namespace StreamCompaction {
          */
         void scan(int n, int *odata, const int *idata) {
             timer().startGpuTimer();
-            // TODO
+           
 
             int size = 1 << ilog2ceil(n); 
        
-            int* padded = new int[size];
-
-            for (int i = 0; i < size; i++) {
-                if (i < n) {
-                    padded[i] = idata[i];
-                }
-                else {
-					padded[i] = 0;
-                }
-                
-            }
-
+            //Init Buffers 
             int* obuffer;
             int* ibuffer;
             cudaMalloc((void**)&obuffer, size * sizeof(int));
             cudaMalloc((void**)&ibuffer, size * sizeof(int));
+            cudaMemset(ibuffer, 0, (size) * sizeof(int));
 
-      
-            cudaMemcpy(obuffer, padded, size * sizeof(int), cudaMemcpyHostToDevice);
-            cudaMemcpy(ibuffer, padded, size * sizeof(int), cudaMemcpyHostToDevice);
-            cudaDeviceSynchronize();
-
-           
+            cudaMemcpy(obuffer, odata, size * sizeof(int), cudaMemcpyHostToDevice);
+            cudaMemcpy(ibuffer, idata, size * sizeof(int), cudaMemcpyHostToDevice);
           
-        
+            cudaDeviceSynchronize();
           
 			// up sweep
-	
             int numBlocks;
 
 
             for (int layer = 0; layer <= ilog2ceil(size) - 1; layer++) {
                 int numThreads = size / int(powf(2, layer + 1));
-                if (numThreads == 0) continue;
-
 				numBlocks = (numThreads + blockSize - 1) / blockSize;
                 upSweep<<<numBlocks, blockSize>>>(size, ibuffer, layer);
                 cudaDeviceSynchronize();
@@ -105,17 +89,15 @@ namespace StreamCompaction {
              
             }
 
-	        
+	        //Set ibuffer[n - 1] = 0 
 			cudaMemset(ibuffer + size - 1, 0, sizeof(int));
          
          
 
            // down sweep 
-   
-         
             for (int layer = ilog2ceil(size) - 1; layer >= 0; layer--) {
                 int numThreads = size / int(powf(2, layer + 1));
-                if (numThreads == 0) continue;
+      
 
                 numBlocks = (numThreads + blockSize - 1) / blockSize;
                 downSweep<<<numBlocks, blockSize>>>(size, ibuffer, layer);
@@ -131,8 +113,7 @@ namespace StreamCompaction {
             cudaMemcpy(odata, ibuffer, n * sizeof(int), cudaMemcpyDeviceToHost);
          
          
-			delete[] padded;
-			padded = nullptr;
+		
 			cudaFree(ibuffer);
 			cudaFree(obuffer);
             
@@ -149,7 +130,7 @@ namespace StreamCompaction {
          */
         int compact(int n, int *odata, const int *idata) {
           //  timer().startGpuTimer();
-            // TODO
+       
             int count = 0;
             int* flags = new int[n];
             int* scanned = new int[n];
@@ -163,9 +144,10 @@ namespace StreamCompaction {
                 }
             }
 
+            //Produce scan 
 			scan(n, scanned, flags);
 
-
+            //Use scan for indices 
             for (int i = 0; i < n; i++) {
                 if (flags[i] == 1) {
                     temp[scanned[i]] = idata[i];
