@@ -22,10 +22,10 @@ namespace StreamCompaction {
         __global__ void upSweep(int n, int* idata, int layer) {
             int index = threadIdx.x + (blockIdx.x * blockDim.x);
 
-			int skip = powf(2, layer + 1); // 1 << (layer + 1);
+			int skip = 1 << (layer + 1); // powf(2, layer + 1);
 
             int i = (index) * skip;
-            if (i >= n) {
+            if (i + skip - 1 >= n) {
                 return;
             }
           
@@ -39,9 +39,9 @@ namespace StreamCompaction {
             int index = threadIdx.x + (blockIdx.x * blockDim.x);
           
    
-            int skip = powf(2, layer + 1);
+			int skip = 1 << (layer + 1); // powf(2, layer + 1);
             int i = index * skip;
-            if (i >= n) {
+            if (i + skip - 1 >= n) {
                 return;
 			}   
           
@@ -96,8 +96,10 @@ namespace StreamCompaction {
 
             for (int layer = 0; layer <= ilog2ceil(size) - 1; layer++) {
                 int numThreads = size / int(powf(2, layer + 1));
+                if (numThreads == 0) continue;
+
 				numBlocks = (numThreads + blockSize - 1) / blockSize;
-                upSweep<<<(numBlocks, blockSize)>>>(size, ibuffer, layer);
+                upSweep<<<numBlocks, blockSize>>>(size, ibuffer, layer);
                 cudaDeviceSynchronize();
                
              
@@ -113,8 +115,10 @@ namespace StreamCompaction {
          
             for (int layer = ilog2ceil(size) - 1; layer >= 0; layer--) {
                 int numThreads = size / int(powf(2, layer + 1));
+                if (numThreads == 0) continue;
+
                 numBlocks = (numThreads + blockSize - 1) / blockSize;
-                downSweep<<<(numBlocks, blockSize)>>>(size, ibuffer, layer);
+                downSweep<<<numBlocks, blockSize>>>(size, ibuffer, layer);
                 cudaDeviceSynchronize();
                
 
