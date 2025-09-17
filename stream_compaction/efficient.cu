@@ -129,39 +129,63 @@ namespace StreamCompaction {
          * @returns      The number of elements remaining after compaction.
          */
         int compact(int n, int *odata, const int *idata) {
+
           //  timer().startGpuTimer();
+
+            int* boolBuffer; 
+			int* obuffer;
+            int* ibuffer;
+			int* scanBuffer = new int[n];
+			int* scanBufferDevice;
+			cudaMalloc((void**)&scanBufferDevice, n * sizeof(int));
+            cudaMalloc((void**)&boolBuffer, n * sizeof(int));
+            cudaMalloc((void**)&ibuffer, n * sizeof(int));
+            cudaMalloc((void**)&obuffer, n * sizeof(int));
+
+            cudaMemcpy(ibuffer, idata, n * sizeof(int), cudaMemcpyHostToDevice);
+           
+            
+            int numBlocks = (n + blockSize - 1) / blockSize;
+            dim3 fullBlocksPerGrid(numBlocks);
+            //Map to boolean 
+            Common::kernMapToBoolean<<<fullBlocksPerGrid, blockSize>>>(n, boolBuffer, ibuffer);
+           
+			int* boolHost = new int[n];
+            cudaMemcpy(boolHost, boolBuffer, n * sizeof(int), cudaMemcpyDeviceToHost);
+
+          
+            //Scan boolean array 
+            scan(n, scanBuffer, boolHost);
+   
+
+            //cudaDeviceSynchronize();
+            cudaMemcpy(scanBufferDevice, scanBuffer, n * sizeof(int), cudaMemcpyHostToDevice);
+			
+            Common::kernScatter <<<fullBlocksPerGrid, blockSize >> > (n, obuffer, ibuffer, boolBuffer, scanBufferDevice);
+            ////Scatter results 
        
-            int count = 0;
-            int* flags = new int[n];
-            int* scanned = new int[n];
-            int* temp = new int[n];
-            for (int i = 0; i < n; i++) {
-                if (idata[i] != 0) {
-                    flags[i] = 1;
-                }
-                else {
-                    flags[i] = 0;
-                }
-            }
+           
 
-            //Produce scan 
-			scan(n, scanned, flags);
+            //  timer().endGpuTimer();
 
-            //Use scan for indices 
-            for (int i = 0; i < n; i++) {
-                if (flags[i] == 1) {
-                    temp[scanned[i]] = idata[i];
-					count++;
-                }
+			//Get count by looking at last element of scan + last element of bool
+			//Last element of scan holds number of elements up to n-1, so 
+            //add bool[n-1] to get the full count
+            int count;
+            cudaMemcpy(&count, scanBufferDevice + n - 1, sizeof(int), cudaMemcpyDeviceToHost);
+            int lastBool;
+            cudaMemcpy(&lastBool, boolBuffer + n - 1, sizeof(int), cudaMemcpyDeviceToHost);
+            count += lastBool;
+            cudaFree(boolBuffer);
+            cudaFree(scanBuffer);
+            cudaMemcpy(odata, obuffer, n * sizeof(int), cudaMemcpyDeviceToHost);
 
-			}
-            for (int i = 0; i < count; i++) {
-                odata[i] = temp[i];
-            }
+		
+         
+			return count;
 
-
-         //   timer().endGpuTimer();
-            return count;
+       
+           
         }
     }
 }
