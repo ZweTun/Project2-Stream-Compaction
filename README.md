@@ -1,14 +1,66 @@
-CUDA Stream Compaction
-======================
+# University of Pennsylvania, CIS 5650: GPU Programming and Architecture
+## Project 2 - Stream Compaction 
 
-**University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 2**
+* Zwe Tun
+  * LinkedIn: https://www.linkedin.com/in/zwe-tun-6b7191256/
+* Tested on: Intel(R) i7-14700HX, 2100 Mhz, RTX 5060 Laptop
 
-* (TODO) YOUR NAME HERE
-  * (TODO) [LinkedIn](), [personal website](), [twitter](), etc.
-* Tested on: (TODO) Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+## Overview 
+Stream compaction is a widely used algorithm with applications in areas such as image compression, data filtering, and parallel computing. This project explores four different implementations of stream compaction:
 
-### (TODO: Your README)
+- CPU compaction without scan
 
-Include analysis, etc. (Remember, this is public, so don't put
-anything here that you don't want to share with the world.)
+- CPU compaction with scan
 
+- GPU-based compaction
+
+Each method demonstrates a different approach to optimizing performance and leveraging hardware capabilities. The goal is to analyze the performance trade-offs and efficiency of each implementation.
+
+## Implementation 
+
+###  CPU compaction without scan 
+This implementation uses an iterative approach that incrementally places non-zero elements from the input array into an output array. An index counter tracks the next available position in the output. 
+
+### CPU compaction with scan 
+In this approach, an exclusive scan is introduced to calculate the output indices of the non-zero elements. The scan is performed using an iterative loop based on the following formula:
+
+x[i] = x[i - 1] + input[i - 1]
+
+Once the scan array is generated, we pass over the input. For each element i, if input[i] is non-zero, we place it into the output array at the position defined by scan[i].
+
+### GPU-based compaction
+The GPU version builds on the scan-based CPU approach. Its performance depends on two scan implementations:
+
+Naive Scan:
+Uses GPU threads to compute the scan in multiple layers. At each layer, threads read from specific indices and write to new indices, all in place, gradually building up the scan. 
+
+Work-Efficient Scan:
+Uses two phases:
+
+Up-sweep: Performs a parallel reduction to build a balanced binary tree of partial sums.
+
+Down-sweep: Traverses back down the tree to compute the exclusive scan in-place. At each pass, a node passes its value to its left child, and sets the right child to the sum of the previous left child’s value and its value. 
+
+Once the scan is complete, the result is copied back to the host (CPU), where the compaction is performed
+
+## Performance Analysis
+
+## Questions 
+Roughly optimize the block sizes of each of your implementations for minimal run time on your GPU.
+
+(You shouldn't compare unoptimized implementations to each other!)
+Compare all of these GPU Scan implementations (Naive, Work-Efficient, and Thrust) to the serial CPU version of Scan. Plot a graph of the comparison (with array size on the independent axis).
+
+We wrapped up both CPU and GPU timing functions as a performance timer class for you to conveniently measure the time cost.
+We use std::chrono to provide CPU high-precision timing and CUDA event to measure the CUDA performance.
+For CPU, put your CPU code between timer().startCpuTimer() and timer().endCpuTimer().
+For GPU, put your CUDA code between timer().startGpuTimer() and timer().endGpuTimer(). Be sure not to include any initial/final memory operations (cudaMalloc, cudaMemcpy) in your performance measurements, for comparability.
+Don't mix up CpuTimer and GpuTimer.
+To guess at what might be happening inside the Thrust implementation (e.g. allocation, memory copy), take a look at the Nsight timeline for its execution. Your analysis here doesn't have to be detailed, since you aren't even looking at the code for the implementation.
+Write a brief explanation of the phenomena you see here.
+
+Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?
+Paste the output of the test program into a triple-backtick block in your README.
+
+If you add your own tests (e.g. for radix sort or to test additional corner cases), be sure to mention it explicitly.
+These questions should help guide you in performance analysis on future assignments, as well.
