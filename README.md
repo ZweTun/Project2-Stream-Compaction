@@ -48,7 +48,8 @@ To evaluate and compare each implementation, a benchmark is used based on the Th
 
 Note, memory allocation and transfer operations (cudaMalloc, cudaMemcpy, etc.) are excluded from the timing results.
 
-The benchmarking will also explore performance across various GPU block sizes to identify the optimal configuration.
+Performance across various GPU block sizes
+
 
 
 ## Questions 
