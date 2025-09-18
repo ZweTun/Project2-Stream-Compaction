@@ -54,7 +54,7 @@ Note, memory allocation and transfer operations (cudaMalloc, cudaMemcpy, etc.) a
 &nbsp;
 
 
-![Stream Compaction](img/block.png)
+![Stream Compaction](img/block1.png)
 
 *Performance across various GPU block sizes for 256 array size, 128 block size used for futher tests.*
 
