@@ -54,10 +54,12 @@ Note, memory allocation and transfer operations (cudaMalloc, cudaMemcpy, etc.) a
 
 *Performance across various GPU block sizes for 256 array size, 128 block size used for futher tests.*
 
+
 ![Stream Compaction](img/Scan.png)
 ![Stream Compaction](img/compact.png)
 
 *Performance results for 8,388,608 (2^23) sized array, 128 block size.*
+
 
 ![Stream Compaction](img/size.png)
 
