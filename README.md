@@ -48,23 +48,18 @@ To evaluate and compare each implementation, a benchmark is used based on the Th
 
 Note, memory allocation and transfer operations (cudaMalloc, cudaMemcpy, etc.) are excluded from the timing results.
 
-Performance across various GPU block sizes
 ![Stream Compaction](img/block.png)
+
+Performance across various GPU block sizes for 256 array size, 128 block size used for futher tests. 
 
 
 ## Questions 
-Roughly optimize the block sizes of each of your implementations for minimal run time on your GPU.
-
-(You shouldn't compare unoptimized implementations to each other!)
-Compare all of these GPU Scan implementations (Naive, Work-Efficient, and Thrust) to the serial CPU version of Scan. Plot a graph of the comparison (with array size on the independent axis).
-
-
-
 To guess at what might be happening inside the Thrust implementation (e.g. allocation, memory copy), take a look at the Nsight timeline for its execution. Your analysis here doesn't have to be detailed, since you aren't even looking at the code for the implementation.
 Write a brief explanation of the phenomena you see here.
+Looking at the timeline, we can observe numerous memory operations and multiple kernel launches. These kernel launches appear to be synchronized and follow a pattern similar to the scan approaches used in this project's algorithm.
 
 Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?
 Paste the output of the test program into a triple-backtick block in your README.
 
-If you add your own tests (e.g. for radix sort or to test additional corner cases), be sure to mention it explicitly.
-These questions should help guide you in performance analysis on future assignments, as well.
+
+
