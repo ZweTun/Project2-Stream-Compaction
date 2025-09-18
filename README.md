@@ -50,15 +50,22 @@ To evaluate and compare each implementation, a benchmark is used based on the Th
 
 Note, memory allocation and transfer operations (cudaMalloc, cudaMemcpy, etc.) are excluded from the timing results.
 
+
+
+
 ![Stream Compaction](img/block.png)
 
 *Performance across various GPU block sizes for 256 array size, 128 block size used for futher tests.*
+
+
 
 
 ![Stream Compaction](img/Scan.png)
 ![Stream Compaction](img/compact.png)
 
 *Performance results for 8,388,608 (2^23) sized array, 128 block size.*
+
+
 
 
 ![Stream Compaction](img/size.png)
