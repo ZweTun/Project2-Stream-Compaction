@@ -44,6 +44,12 @@ Down-sweep: Traverses back down the tree to compute the exclusive scan in-place.
 Once the scan is complete, the result is copied back to the host (CPU), where the compaction is performed
 
 ## Performance Analysis
+To evaluate and compare each implementation, a benchmark is used based on the Thrust API, specifically leveraging thrust::exclusive_scan. Performance is measured for both CPU and GPU executions by wrapping each in a performance timer class. The CPU execution time is recorded using std::chrono for high-precision timing, while GPU timing is measured using CUDA events.
+
+Note, memory allocation and transfer operations (cudaMalloc, cudaMemcpy, etc.) are excluded from the timing results.
+
+The benchmarking will also explore performance across various GPU block sizes to identify the optimal configuration.
+
 
 ## Questions 
 Roughly optimize the block sizes of each of your implementations for minimal run time on your GPU.
@@ -51,11 +57,8 @@ Roughly optimize the block sizes of each of your implementations for minimal run
 (You shouldn't compare unoptimized implementations to each other!)
 Compare all of these GPU Scan implementations (Naive, Work-Efficient, and Thrust) to the serial CPU version of Scan. Plot a graph of the comparison (with array size on the independent axis).
 
-We wrapped up both CPU and GPU timing functions as a performance timer class for you to conveniently measure the time cost.
-We use std::chrono to provide CPU high-precision timing and CUDA event to measure the CUDA performance.
-For CPU, put your CPU code between timer().startCpuTimer() and timer().endCpuTimer().
-For GPU, put your CUDA code between timer().startGpuTimer() and timer().endGpuTimer(). Be sure not to include any initial/final memory operations (cudaMalloc, cudaMemcpy) in your performance measurements, for comparability.
-Don't mix up CpuTimer and GpuTimer.
+
+
 To guess at what might be happening inside the Thrust implementation (e.g. allocation, memory copy), take a look at the Nsight timeline for its execution. Your analysis here doesn't have to be detailed, since you aren't even looking at the code for the implementation.
 Write a brief explanation of the phenomena you see here.
 
