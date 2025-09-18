@@ -49,7 +49,7 @@ To evaluate and compare each implementation, a benchmark is used based on the Th
 Note, memory allocation and transfer operations (cudaMalloc, cudaMemcpy, etc.) are excluded from the timing results.
 
 Performance across various GPU block sizes
-![Stream Compaction](imag/block.png)
+![Stream Compaction](img/block.png)
 
 
 ## Questions 
