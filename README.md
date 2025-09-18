@@ -82,4 +82,4 @@ Note, memory allocation and transfer operations (cudaMalloc, cudaMemcpy, etc.) a
 Looking at the timeline, we can observe numerous memory operations and multiple kernel launches. These kernel launches appear to be synchronized and follow a pattern similar to the scan approaches used in this project's algorithm.
 
 ### Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?
-For the CPU implementation, the bottleneck is predominantly computation based on the size of the array. Since the CPU executes sequentially main cost is due to math operations. For the GPU, memory I/O will make up the majority of the cost. Computation is parallelized through threads so global memory accesses and copies will be limiting. 
+For the CPU implementation, the bottleneck is predominantly computation based on the size of the array. Since the CPU executes sequentially, the main cost is due to math operations at each interation. For the GPU, memory I/O will make up the majority of the cost. Computation is parallelized through threads so global memory accesses and copies will be limiting. 
