@@ -18,17 +18,17 @@ Each method demonstrates a different approach to optimizing performance and leve
 
 ## Implementation 
 
-###  CPU compaction without scan 
+###  CPU Compaction Without Scan 
 This implementation uses an iterative approach that incrementally places non-zero elements from the input array into an output array. An index counter tracks the next available position in the output. 
 
-### CPU compaction with scan 
+### CPU Compaction With Scan 
 In this approach, an exclusive scan is introduced to calculate the output indices of the non-zero elements. The scan is performed using an iterative loop based on the following formula:
 
 x[i] = x[i - 1] + input[i - 1]
 
 Once the scan array is generated, we pass over the input. For each element i, if input[i] is non-zero, we place it into the output array at the position defined by scan[i].
 
-### GPU-based compaction
+### GPU-based Compaction
 The GPU version builds on the scan-based CPU approach. Its performance depends on two scan implementations:
 
 Naive Scan:
