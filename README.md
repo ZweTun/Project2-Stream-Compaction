@@ -37,9 +37,11 @@ Uses GPU threads to compute the scan in multiple layers. At each layer, threads 
 Work-Efficient Scan:
 Uses two phases:
 
-Up-sweep: Performs a parallel reduction to build a balanced binary tree of partial sums.
+Up-sweep: 
+Performs a parallel reduction to build a balanced binary tree of partial sums.
 
-Down-sweep: Traverses back down the tree to compute the exclusive scan in-place. At each pass, a node passes its value to its left child, and sets the right child to the sum of the previous left child’s value and its value. 
+Down-sweep:
+Traverses back down the tree to compute the exclusive scan in-place. At each pass, a node passes its value to its left child, and sets the right child to the sum of the previous left child’s value and its value. 
 
 Once the scan is complete, the result is copied back to the host (CPU), where the compaction is performed
 
