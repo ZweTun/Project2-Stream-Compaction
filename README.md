@@ -31,10 +31,10 @@ Once the scan array is generated, we pass over the input. For each element i, if
 ### GPU-based Compaction
 The GPU version builds on the scan-based CPU approach. Its performance depends on two scan implementations:
 
-Naive Scan:
+** Naive Scan: **
 Uses GPU threads to compute the scan in multiple layers. At each layer, threads read from specific indices and write to new indices, all in place, gradually building up the scan. 
 
-Work-Efficient Scan:
+** Work-Efficient Scan: ** 
 Uses two phases:
 
 Up-sweep: 
