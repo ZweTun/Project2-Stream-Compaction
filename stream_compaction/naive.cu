@@ -14,7 +14,7 @@ namespace StreamCompaction {
             return timer;
         } 
 
-        #define blockSize 128
+        #define blockSize 64
         int* obuffer;
         int* ibuffer;
 

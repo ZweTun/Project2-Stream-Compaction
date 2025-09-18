@@ -14,7 +14,7 @@ namespace StreamCompaction {
         }
 
 
-        #define blockSize 128
+        #define blockSize 64
         int* obuffer;
         int* ibuffer;
 
@@ -131,41 +131,39 @@ namespace StreamCompaction {
         int compact(int n, int *odata, const int *idata) {
 
           //  timer().startGpuTimer();
-
-            int* boolBuffer; 
+			//Init Buffers
+            int* boolBufferDevice; 
 			int* obuffer;
             int* ibuffer;
 			int* scanBuffer = new int[n];
 			int* scanBufferDevice;
+
 			cudaMalloc((void**)&scanBufferDevice, n * sizeof(int));
-            cudaMalloc((void**)&boolBuffer, n * sizeof(int));
+            cudaMalloc((void**)&boolBufferDevice, n * sizeof(int));
             cudaMalloc((void**)&ibuffer, n * sizeof(int));
             cudaMalloc((void**)&obuffer, n * sizeof(int));
 
             cudaMemcpy(ibuffer, idata, n * sizeof(int), cudaMemcpyHostToDevice);
            
-            
             int numBlocks = (n + blockSize - 1) / blockSize;
             dim3 fullBlocksPerGrid(numBlocks);
             //Map to boolean 
-            Common::kernMapToBoolean<<<fullBlocksPerGrid, blockSize>>>(n, boolBuffer, ibuffer);
+            Common::kernMapToBoolean<<<fullBlocksPerGrid, blockSize>>>(n, boolBufferDevice, ibuffer);
            
-			int* boolHost = new int[n];
-            cudaMemcpy(boolHost, boolBuffer, n * sizeof(int), cudaMemcpyDeviceToHost);
+			int* boolBuffer = new int[n];
+            cudaMemcpy(boolBuffer, boolBufferDevice, n * sizeof(int), cudaMemcpyDeviceToHost);
 
           
             //Scan boolean array 
-            scan(n, scanBuffer, boolHost);
+            scan(n, scanBuffer, boolBuffer);
    
 
-            //cudaDeviceSynchronize();
             cudaMemcpy(scanBufferDevice, scanBuffer, n * sizeof(int), cudaMemcpyHostToDevice);
 			
-            Common::kernScatter <<<fullBlocksPerGrid, blockSize >> > (n, obuffer, ibuffer, boolBuffer, scanBufferDevice);
+            Common::kernScatter <<<fullBlocksPerGrid, blockSize >> > (n, obuffer, ibuffer, boolBufferDevice, scanBufferDevice);
             ////Scatter results 
        
-           
-
+         
             //  timer().endGpuTimer();
 
 			//Get count by looking at last element of scan + last element of bool
@@ -174,7 +172,7 @@ namespace StreamCompaction {
             int count;
             cudaMemcpy(&count, scanBufferDevice + n - 1, sizeof(int), cudaMemcpyDeviceToHost);
             int lastBool;
-            cudaMemcpy(&lastBool, boolBuffer + n - 1, sizeof(int), cudaMemcpyDeviceToHost);
+            cudaMemcpy(&lastBool, boolBufferDevice + n - 1, sizeof(int), cudaMemcpyDeviceToHost);
             count += lastBool;
             cudaFree(boolBuffer);
             cudaFree(scanBuffer);
