@@ -51,6 +51,7 @@ To evaluate and compare each implementation, a benchmark is used based on the Th
 Note, memory allocation and transfer operations (cudaMalloc, cudaMemcpy, etc.) are excluded from the timing results.
 
 
+&nbsp;
 
 
 ![Stream Compaction](img/block.png)
@@ -58,6 +59,7 @@ Note, memory allocation and transfer operations (cudaMalloc, cudaMemcpy, etc.) a
 *Performance across various GPU block sizes for 256 array size, 128 block size used for futher tests.*
 
 
+&nbsp;
 
 
 ![Stream Compaction](img/Scan.png)
@@ -65,13 +67,14 @@ Note, memory allocation and transfer operations (cudaMalloc, cudaMemcpy, etc.) a
 
 *Performance results for 8,388,608 (2^23) sized array, 128 block size.*
 
-
+&nbsp;
 
 
 ![Stream Compaction](img/size.png)
 
 *Performance results for 8,388,608 (2^23) non-power-two vs power-of-two sized array, 128 block size.*
 
+&nbsp;
 
 ## Questions 
 ### To guess at what might be happening inside the Thrust implementation (e.g. allocation, memory copy), take a look at the Nsight timeline for its execution. Your analysis here doesn't have to be detailed, since you aren't even looking at the code for the implementation. Write a brief explanation of the phenomena you see here.
