@@ -58,9 +58,10 @@ Performance across various GPU block sizes for 256 array size, 128 block size us
 Performance results for 8,388,608 size array, 128 block size.
 
 ## Questions 
-To guess at what might be happening inside the Thrust implementation (e.g. allocation, memory copy), take a look at the Nsight timeline for its execution. Your analysis here doesn't have to be detailed, since you aren't even looking at the code for the implementation.
+# To guess at what might be happening inside the Thrust implementation (e.g. allocation, memory copy), take a look at the Nsight timeline for its execution. Your analysis here doesn't have to be detailed, since you aren't even looking at the code for the implementation.
 Write a brief explanation of the phenomena you see here.
+
 Looking at the timeline, we can observe numerous memory operations and multiple kernel launches. These kernel launches appear to be synchronized and follow a pattern similar to the scan approaches used in this project's algorithm.
 
-Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?
+# Can you find the performance bottlenecks? Is it memory I/O? Computation? Is it different for each implementation?
 For the CPU implementation, the bottleneck is predominantly computation based on the size of the array. Since the CPU executes sequentially main cost is due to math operations. For the GPU, memory I/O will make up the majority of the cost. Computation is parallelized through threads so global memory accesses and copies will be limiting. 
